@@ -32,10 +32,12 @@ namespace ASCOM.HakosRoof
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (IsConnected)
+            {
                 driver.Connected = false;
+            }
 
             Properties.Settings.Default.Save();
-            timer1.Stop();
+           
 
         }
 
