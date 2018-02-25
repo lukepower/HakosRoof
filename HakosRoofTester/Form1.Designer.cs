@@ -44,7 +44,7 @@
             this.buttonChoose.TabIndex = 0;
             this.buttonChoose.Text = "Choose";
             this.buttonChoose.UseVisualStyleBackColor = true;
-            this.buttonChoose.Click += new System.EventHandler(this.buttonChoose_Click);
+            this.buttonChoose.Click += new System.EventHandler(this.ButtonChoose_Click);
             // 
             // buttonConnect
             // 
@@ -54,7 +54,7 @@
             this.buttonConnect.TabIndex = 1;
             this.buttonConnect.Text = "Connect";
             this.buttonConnect.UseVisualStyleBackColor = true;
-            this.buttonConnect.Click += new System.EventHandler(this.buttonConnect_Click);
+            this.buttonConnect.Click += new System.EventHandler(this.ButtonConnect_Click);
             // 
             // labelDriverId
             // 
@@ -75,7 +75,7 @@
             this.btnOpenRoof.TabIndex = 3;
             this.btnOpenRoof.Text = "Open";
             this.btnOpenRoof.UseVisualStyleBackColor = true;
-            this.btnOpenRoof.Click += new System.EventHandler(this.btnOpenRoof_Click);
+            this.btnOpenRoof.Click += new System.EventHandler(this.BtnOpenRoof_Click);
             // 
             // label1
             // 

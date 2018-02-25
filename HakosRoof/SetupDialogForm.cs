@@ -20,7 +20,7 @@ namespace ASCOM.HakosRoof
             InitUI();
         }
 
-        private void cmdOK_Click(object sender, EventArgs e) // OK button event handler
+        private void CmdOK_Click(object sender, EventArgs e) // OK button event handler
         {
             // Place any validation constraint checks here
             // Update the state variables with results from the dialogue
@@ -32,7 +32,7 @@ namespace ASCOM.HakosRoof
             Dome.tl.Enabled = chkTrace.Checked;
         }
 
-        private void cmdCancel_Click(object sender, EventArgs e) // Cancel button event handler
+        private void CmdCancel_Click(object sender, EventArgs e) // Cancel button event handler
         {
             Close();
         }

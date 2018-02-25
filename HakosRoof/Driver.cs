@@ -664,14 +664,18 @@ namespace ASCOM.HakosRoof
         #endregion
 
         #region REST tools
-        internal void callRest(string target)
+        internal void CallRest(string target)
         {
-            var client = new RestClient();
-            client.BaseUrl = new Uri(URL);
-            client.Authenticator = new HttpBasicAuthenticator(Username, Password);
+            var client = new RestClient
+            {
+                BaseUrl = new Uri(URL),
+                Authenticator = new HttpBasicAuthenticator(Username, Password)
+            };
 
-            var request = new RestRequest();
-            request.Resource = target;
+            var request = new RestRequest
+            {
+                Resource = target
+            };
 
             IRestResponse response = client.Execute(request);
         }

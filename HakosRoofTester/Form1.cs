@@ -19,12 +19,12 @@ namespace ASCOM.HakosRoof
         public void InitTimer()
         {
             timer1 = new Timer();
-            timer1.Tick += new EventHandler(timer1_Tick);
+            timer1.Tick += new EventHandler(Timer1_Tick);
             timer1.Interval = 2000; // in miliseconds
             timer1.Start();
         }
 
-        private void timer1_Tick(object sender, EventArgs e)
+        private void Timer1_Tick(object sender, EventArgs e)
         {
             SetUIState();
         }
@@ -39,13 +39,13 @@ namespace ASCOM.HakosRoof
 
         }
 
-        private void buttonChoose_Click(object sender, EventArgs e)
+        private void ButtonChoose_Click(object sender, EventArgs e)
         {
             Properties.Settings.Default.DriverId = ASCOM.DriverAccess.Dome.Choose(Properties.Settings.Default.DriverId);
             SetUIState();
         }
 
-        private void buttonConnect_Click(object sender, EventArgs e)
+        private void ButtonConnect_Click(object sender, EventArgs e)
         {
             if (IsConnected)
             {
@@ -53,8 +53,10 @@ namespace ASCOM.HakosRoof
             }
             else
             {
-                driver = new ASCOM.DriverAccess.Dome(Properties.Settings.Default.DriverId);
-                driver.Connected = true;
+                driver = new ASCOM.DriverAccess.Dome(Properties.Settings.Default.DriverId)
+                {
+                    Connected = true
+                };
 
                 driver.OpenShutter();
 
@@ -92,7 +94,7 @@ namespace ASCOM.HakosRoof
             }
         }
 
-        private void btnOpenRoof_Click(object sender, EventArgs e)
+        private void BtnOpenRoof_Click(object sender, EventArgs e)
         {
             switch (btnOpenRoof.Text)
             {
