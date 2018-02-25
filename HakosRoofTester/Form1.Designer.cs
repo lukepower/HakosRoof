@@ -31,6 +31,9 @@
             this.buttonChoose = new System.Windows.Forms.Button();
             this.buttonConnect = new System.Windows.Forms.Button();
             this.labelDriverId = new System.Windows.Forms.Label();
+            this.btnOpenRoof = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
+            this.labelStatus = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // buttonChoose
@@ -64,18 +67,50 @@
             this.labelDriverId.Text = global::ASCOM.HakosRoof.Properties.Settings.Default.DriverId;
             this.labelDriverId.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
+            // btnOpenRoof
+            // 
+            this.btnOpenRoof.Location = new System.Drawing.Point(12, 91);
+            this.btnOpenRoof.Name = "btnOpenRoof";
+            this.btnOpenRoof.Size = new System.Drawing.Size(75, 23);
+            this.btnOpenRoof.TabIndex = 3;
+            this.btnOpenRoof.Text = "Open";
+            this.btnOpenRoof.UseVisualStyleBackColor = true;
+            this.btnOpenRoof.Click += new System.EventHandler(this.btnOpenRoof_Click);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(12, 240);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(40, 13);
+            this.label1.TabIndex = 4;
+            this.label1.Text = "Status:";
+            // 
+            // labelStatus
+            // 
+            this.labelStatus.AutoSize = true;
+            this.labelStatus.Location = new System.Drawing.Point(58, 240);
+            this.labelStatus.Name = "labelStatus";
+            this.labelStatus.Size = new System.Drawing.Size(35, 13);
+            this.labelStatus.TabIndex = 5;
+            this.labelStatus.Text = "label2";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(409, 262);
+            this.Controls.Add(this.labelStatus);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.btnOpenRoof);
             this.Controls.Add(this.labelDriverId);
             this.Controls.Add(this.buttonConnect);
             this.Controls.Add(this.buttonChoose);
             this.Name = "Form1";
-            this.Text = "TEMPLATEDEVICETYPE Test";
+            this.Text = "HakosDome Tester";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -84,6 +119,9 @@
         private System.Windows.Forms.Button buttonChoose;
         private System.Windows.Forms.Button buttonConnect;
         private System.Windows.Forms.Label labelDriverId;
+        private System.Windows.Forms.Button btnOpenRoof;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label labelStatus;
     }
 }
 

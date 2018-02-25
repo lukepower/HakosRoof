@@ -8,9 +8,24 @@ namespace ASCOM.HakosRoof
 
         private ASCOM.DriverAccess.Dome driver;
 
+        private Timer timer1;
+
         public Form1()
         {
             InitializeComponent();
+            SetUIState();
+        }
+
+        public void InitTimer()
+        {
+            timer1 = new Timer();
+            timer1.Tick += new EventHandler(timer1_Tick);
+            timer1.Interval = 2000; // in miliseconds
+            timer1.Start();
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
             SetUIState();
         }
 
@@ -20,6 +35,8 @@ namespace ASCOM.HakosRoof
                 driver.Connected = false;
 
             Properties.Settings.Default.Save();
+            timer1.Stop();
+
         }
 
         private void buttonChoose_Click(object sender, EventArgs e)
@@ -50,6 +67,21 @@ namespace ASCOM.HakosRoof
             buttonConnect.Enabled = !string.IsNullOrEmpty(Properties.Settings.Default.DriverId);
             buttonChoose.Enabled = !IsConnected;
             buttonConnect.Text = IsConnected ? "Disconnect" : "Connect";
+            btnOpenRoof.Enabled = IsConnected;
+
+            
+            labelStatus.Text = IsConnected ? driver.ShutterStatus.ToString() : "Not Connected";
+            if (IsConnected)
+            {
+                switch (driver.ShutterStatus)
+                {
+                    case DeviceInterface.ShutterState.shutterClosed: btnOpenRoof.Text = "Open"; break;
+                    case DeviceInterface.ShutterState.shutterOpen: btnOpenRoof.Text = "Close"; break;
+                    case DeviceInterface.ShutterState.shutterClosing: btnOpenRoof.Text = "Stop"; break;
+                    case DeviceInterface.ShutterState.shutterOpening: btnOpenRoof.Text = "Stop"; break;
+                    case DeviceInterface.ShutterState.shutterError: btnOpenRoof.Text = "Error"; break;
+                }
+            }
         }
 
         private bool IsConnected
@@ -58,6 +90,17 @@ namespace ASCOM.HakosRoof
             {
                 return ((this.driver != null) && (driver.Connected == true));
             }
+        }
+
+        private void btnOpenRoof_Click(object sender, EventArgs e)
+        {
+            switch (btnOpenRoof.Text)
+            {
+                case "Open": driver.OpenShutter(); break;
+                case "Close": driver.CloseShutter(); break;
+                case "Stop": driver.AbortSlew(); break;
+            }
+            SetUIState();
         }
     }
 }

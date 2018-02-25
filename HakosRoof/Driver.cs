@@ -27,18 +27,14 @@
 #define Dome
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
 using System.Runtime.InteropServices;
-
-using ASCOM;
-using ASCOM.Astrometry;
 using ASCOM.Astrometry.AstroUtils;
 using ASCOM.Utilities;
 using ASCOM.DeviceInterface;
 using System.Globalization;
 using System.Collections;
+using RestSharp;
+using RestSharp.Authenticators;
 
 namespace ASCOM.HakosRoof
 {
@@ -665,6 +661,21 @@ namespace ASCOM.HakosRoof
             var msg = string.Format(message, args);
             tl.LogMessage(identifier, msg);
         }
+        #endregion
+
+        #region REST tools
+        internal void callRest(string target)
+        {
+            var client = new RestClient();
+            client.BaseUrl = new Uri(URL);
+            client.Authenticator = new HttpBasicAuthenticator(Username, Password);
+
+            var request = new RestRequest();
+            request.Resource = target;
+
+            IRestResponse response = client.Execute(request);
+        }
+
         #endregion
     }
 }
