@@ -26,8 +26,8 @@ namespace ASCOM.HakosRoof
             // Update the state variables with results from the dialogue
             
             Dome.URL = txtURL.Text.ToString();
-            Dome.Username = txtUsername.Text.ToString();
-            Dome.Password = txtPassword.Text.ToString();
+            Dome.APIKey = txtApiKey.Text.ToString();
+            
 
             Dome.tl.Enabled = chkTrace.Checked;
         }
@@ -62,8 +62,8 @@ namespace ASCOM.HakosRoof
             this.Text = "HakosRoof Setup ver. " + version.ToString();
 
             txtURL.Text = Dome.URL;
-            txtUsername.Text = Dome.Username;
-            txtPassword.Text = Dome.Password;
+            txtApiKey.Text = Dome.APIKey;
+            
         }
 
         private void SetupDialogForm_Load(object sender, EventArgs e)
@@ -74,6 +74,11 @@ namespace ASCOM.HakosRoof
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             System.Diagnostics.Process.Start(linkLabel1.Text as string);
+        }
+
+        private void label3_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

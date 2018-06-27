@@ -36,9 +36,7 @@ namespace ASCOM.HakosRoof
             this.txtURL = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this.txtUsername = new System.Windows.Forms.TextBox();
-            this.txtPassword = new System.Windows.Forms.TextBox();
+            this.txtApiKey = new System.Windows.Forms.TextBox();
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
             this.label6 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.picASCOM)).BeginInit();
@@ -121,34 +119,17 @@ namespace ASCOM.HakosRoof
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(12, 85);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(55, 13);
+            this.label3.Size = new System.Drawing.Size(45, 13);
             this.label3.TabIndex = 10;
-            this.label3.Text = "Username";
+            this.label3.Text = "API Key";
+            this.label3.Click += new System.EventHandler(this.label3_Click);
             // 
-            // label4
+            // txtApiKey
             // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(11, 111);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(53, 13);
-            this.label4.TabIndex = 11;
-            this.label4.Text = "Password";
-            // 
-            // txtUsername
-            // 
-            this.txtUsername.Location = new System.Drawing.Point(81, 82);
-            this.txtUsername.Name = "txtUsername";
-            this.txtUsername.Size = new System.Drawing.Size(177, 20);
-            this.txtUsername.TabIndex = 12;
-            // 
-            // txtPassword
-            // 
-            this.txtPassword.Location = new System.Drawing.Point(81, 108);
-            this.txtPassword.Name = "txtPassword";
-            this.txtPassword.PasswordChar = '*';
-            this.txtPassword.Size = new System.Drawing.Size(177, 20);
-            this.txtPassword.TabIndex = 13;
-            this.txtPassword.TabStop = false;
+            this.txtApiKey.Location = new System.Drawing.Point(81, 82);
+            this.txtApiKey.Name = "txtApiKey";
+            this.txtApiKey.Size = new System.Drawing.Size(177, 20);
+            this.txtApiKey.TabIndex = 12;
             // 
             // linkLabel1
             // 
@@ -177,9 +158,7 @@ namespace ASCOM.HakosRoof
             this.ClientSize = new System.Drawing.Size(504, 170);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.linkLabel1);
-            this.Controls.Add(this.txtPassword);
-            this.Controls.Add(this.txtUsername);
-            this.Controls.Add(this.label4);
+            this.Controls.Add(this.txtApiKey);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.txtURL);
@@ -212,9 +191,7 @@ namespace ASCOM.HakosRoof
         private System.Windows.Forms.TextBox txtURL;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.TextBox txtUsername;
-        private System.Windows.Forms.TextBox txtPassword;
+        private System.Windows.Forms.TextBox txtApiKey;
         private System.Windows.Forms.LinkLabel linkLabel1;
         private System.Windows.Forms.Label label6;
     }

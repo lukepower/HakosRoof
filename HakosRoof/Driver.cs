@@ -25,16 +25,24 @@
 // This is used to define code in the template that is specific to one class implementation
 // unused code canbe deleted and this definition removed.
 #define Dome
+#define USE_MQTT
 
 using System;
 using System.Runtime.InteropServices;
 using ASCOM.Astrometry.AstroUtils;
+using SimpleJson;
 using ASCOM.Utilities;
 using ASCOM.DeviceInterface;
 using System.Globalization;
 using System.Collections;
+using System.Net;
+using System.IO;
+using System.Threading.Tasks;
+using System.Web;
+using System.Diagnostics;
+using System.Text;
 using RestSharp;
-using RestSharp.Authenticators;
+using Newtonsoft.Json;
 
 namespace ASCOM.HakosRoof
 {
@@ -72,13 +80,13 @@ namespace ASCOM.HakosRoof
         internal static string traceStateProfileName = "Trace Level";
         internal static string traceStateDefault = "false";
 
-        internal static string UsernameProfileName = "Username"; // Constants used for Profile persistence
+        internal static string UsernameProfileName = "APIKey"; // Constants used for Profile persistence
         internal static string UsernameDefault = "User";
         internal static string PasswordProfileName = "Password"; // Constants used for Profile persistence
         internal static string PasswordDefault = "";
 
         internal static string URL; // Variables to hold the currrent URL configuration
-        internal static string Username; // Variables to hold the currrent device configuration
+        internal static string APIKey; // Variables to hold the currrent device configuration
         internal static string Password; // Variables to hold the currrent device configuration
 
 
@@ -100,10 +108,47 @@ namespace ASCOM.HakosRoof
         /// </summary>
         private AstroUtils astroUtilities;
 
+        private RestClient client;
+
         /// <summary>
         /// Variable to hold the trace logger object (creates a diagnostic log file with information that you specify)
         /// </summary>
         internal static TraceLogger tl;
+
+        public enum ActionCodes
+        {
+            openRoof,
+            closeRoof,
+            roofStatus
+        }
+
+        public enum ReturnCodes
+        {
+            roofOpening,
+            roofOpen,
+            roofClosing,
+            roofClosed,
+            roofError,
+            commandAccepted,
+            commandError,
+            credentialError
+        }
+        public struct CallResult
+        {
+            public ReturnCodes returnCode;
+            public ActionCodes calledAction;
+            public string resultString;
+        }
+
+        public class RestCallResult
+        {
+            public string val { get; set; }
+            public bool ack { get; set; }
+            public string _id { get; set; }
+            public string msg { get; set; }
+            public string stext { get; set; }
+
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HakosRoof"/> class.
@@ -234,6 +279,18 @@ namespace ASCOM.HakosRoof
                     connectedState = true;
                     LogMessage("Connected Set", "Connecting to URL {0}", URL);
                     // TODO connect to the device
+                    client = new RestClient(URL);
+                    // client.Authenticator = new HttpBasicAuthenticator(username, password);
+                    CallResult res =  SendRequest(ActionCodes.roofStatus);
+                    
+                    if (res.returnCode== ReturnCodes.credentialError)
+                    {
+                        LogMessage("Connected Set", "Connecting to URL {0} failed with API error", URL);
+                        connectedState = false;
+                    }
+
+
+    
                 }
                 else
                 {
@@ -246,6 +303,7 @@ namespace ASCOM.HakosRoof
             }
 
         }
+
 
         public string Description
         {
@@ -427,9 +485,15 @@ namespace ASCOM.HakosRoof
 
         public void CloseShutter()
         {
-            domeShutterState = ShutterState.shutterClosing;
-            tl.LogMessage("CloseShutter", "Shutter has been closed");
-            domeShutterState = ShutterState.shutterClosed;
+            CallResult result = SendRequest(ActionCodes.closeRoof);
+            if (result.returnCode == ReturnCodes.roofError || result.returnCode == ReturnCodes.commandError)
+            {
+                domeShutterState = ShutterState.shutterError;
+                tl.LogMessage("CloseShutter", "Shutter error while asking to close");
+            }
+            
+            tl.LogMessage("CloseShutter", "Shutter has been asked to close");
+            
         }
 
         public void FindHome()
@@ -440,13 +504,15 @@ namespace ASCOM.HakosRoof
 
         public void OpenShutter()
         {
-            domeShutterState = ShutterState.shutterOpening;
-            tl.LogMessage("OpenShutter", "Shutter has been opened");
 
-            log.Info("Shutter Open!");
-            System.Diagnostics.Debug.WriteLine("Hello Shutter");
+            CallResult result = SendRequest(ActionCodes.openRoof);
+            if (result.returnCode == ReturnCodes.roofError || result.returnCode == ReturnCodes.commandError)
+            {
+                domeShutterState = ShutterState.shutterError;
+                tl.LogMessage("OpenShutter", "Shutter error while asking to open");
+            }
 
-            domeShutterState = ShutterState.shutterOpen;
+            tl.LogMessage("OpenShutter", "Shutter has been asked to open");
         }
 
         public void Park()
@@ -467,7 +533,21 @@ namespace ASCOM.HakosRoof
             {
                 
                 tl.LogMessage("ShutterStatus Get", false.ToString());
-                
+                CallResult result = SendRequest(ActionCodes.roofStatus);
+                if (result.returnCode == ReturnCodes.roofError || result.returnCode == ReturnCodes.commandError)
+                {
+                    domeShutterState = ShutterState.shutterError;
+                } else
+                {
+                    switch (result.returnCode)
+                    {
+                        case ReturnCodes.roofClosed: domeShutterState = ShutterState.shutterClosed; break;
+                        case ReturnCodes.roofClosing: domeShutterState = ShutterState.shutterClosing; break;
+                        case ReturnCodes.roofOpen: domeShutterState = ShutterState.shutterOpen; break;
+                        case ReturnCodes.roofOpening: domeShutterState = ShutterState.shutterOpening; break;
+                    }
+
+                }
                
                     tl.LogMessage("ShutterStatus", domeShutterState.ToString());
                     return domeShutterState;
@@ -630,7 +710,7 @@ namespace ASCOM.HakosRoof
                 driverProfile.DeviceType = "Dome";
                 tl.Enabled = Convert.ToBoolean(driverProfile.GetValue(driverID, traceStateProfileName, string.Empty, traceStateDefault));
                 URL = driverProfile.GetValue(driverID, UrlProfileName, string.Empty, UrlDefault);
-                Username = driverProfile.GetValue(driverID, UsernameProfileName, string.Empty, UsernameDefault);
+                APIKey = driverProfile.GetValue(driverID, UsernameProfileName, string.Empty, UsernameDefault);
                 Password = driverProfile.GetValue(driverID, PasswordProfileName, string.Empty, PasswordDefault);
             }
         }
@@ -645,7 +725,7 @@ namespace ASCOM.HakosRoof
                 driverProfile.DeviceType = "Dome";
                 driverProfile.WriteValue(driverID, traceStateProfileName, tl.Enabled.ToString());
                 driverProfile.WriteValue(driverID, UrlProfileName, URL.ToString());
-                driverProfile.WriteValue(driverID, UsernameProfileName, Username.ToString());
+                driverProfile.WriteValue(driverID, UsernameProfileName, APIKey.ToString());
                 driverProfile.WriteValue(driverID, PasswordProfileName, Password.ToString());
             }
         }
@@ -664,21 +744,118 @@ namespace ASCOM.HakosRoof
         #endregion
 
         #region REST tools
-        internal void CallRest(string target)
+
+        public CallResult SendRequest(ActionCodes action)
         {
-            var client = new RestClient
-            {
-                BaseUrl = new Uri(URL),
-                Authenticator = new HttpBasicAuthenticator(Username, Password)
-            };
 
-            var request = new RestRequest
+            CallResult result = new CallResult
             {
-                Resource = target
+                calledAction = action
             };
+            /*
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(URL);
+            request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
 
-            IRestResponse response = client.Execute(request);
+            request.Method = "GET";
+            request.ContentType = "text/json";
+            string results = string.Empty;
+            
+            //search word
+            switch (action)
+            {
+                case ActionCodes.closeRoof: request.Headers.Add("action ", HttpUtility.UrlEncode("close")); break;
+                case ActionCodes.openRoof: request.Headers.Add("action ", HttpUtility.UrlEncode("open")); break;
+                case ActionCodes.roofStatus: request.Headers.Add("action ", HttpUtility.UrlEncode("status")); break;
+                default:  result.returnCode = ReturnCodes.commandError; result.resultString = "No action given"; return result;
+            }
+            
+            request.Headers.Add("id", HttpUtility.UrlEncode(Password));
+
+            string returnedData;
+
+            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+            using (Stream stream = response.GetResponseStream())
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                returnedData = reader.ReadToEnd();
+            }
+
+            switch (returnedData)
+            {
+                case "Ok":      result.returnCode = ReturnCodes.commandAccepted; break;
+                case "Error":   result.returnCode = ReturnCodes.commandError; break;
+                case "Open":    result.returnCode = ReturnCodes.roofOpen; break;
+                case "Opening": result.returnCode = ReturnCodes.roofOpening; break;
+                case "Closed": result.returnCode = ReturnCodes.roofClosed; break;
+                case "Closing": result.returnCode = ReturnCodes.roofClosing; break;
+            }*/
+
+            // Hack begin
+            RestRequest requestLocal;
+            
+            switch (action)
+            {
+                case ActionCodes.closeRoof: requestLocal = new RestRequest("remobs?action=close", Method.GET); break;
+                case ActionCodes.openRoof: requestLocal = new RestRequest("remobs?action=open", Method.GET); break;
+                case ActionCodes.roofStatus: requestLocal = new RestRequest("remobs?action=status", Method.GET); break;
+                default: result.returnCode = ReturnCodes.commandError; result.resultString = "No action given"; return result;
+            }
+
+            requestLocal.AddParameter("key", APIKey); // Setze API key
+
+
+            // execute the request
+            //IRestResponse<RestCallResult> response = client.Execute<RestCallResult>(requestLocal);
+            IRestResponse response = client.Execute(requestLocal);
+            // var content = response.Content; // raw content as string
+            var JSONObj = JsonConvert.DeserializeObject<RestCallResult>(response.Content);
+
+            if  (JSONObj.msg=="invalid key")
+            {
+                result.returnCode = ReturnCodes.credentialError;
+                return result;
+            }
+            //JSONObj.msg == "invalid key"
+            //if (JSONObj.ack)
+            //{
+                switch (JSONObj.stext)
+                {
+                    case "Ok": result.returnCode = ReturnCodes.commandAccepted; break;
+                    case "Error": result.returnCode = ReturnCodes.commandError; break;
+                    case "open": result.returnCode = ReturnCodes.roofOpen; break;
+                    case "opening": result.returnCode = ReturnCodes.roofOpening; break;
+                    case "closed": result.returnCode = ReturnCodes.roofClosed; break;
+                    case "closeing": result.returnCode = ReturnCodes.roofClosing; break;
+                }
+
+            /*} else if (JSONObj.val=="true")
+                {
+                // Command to open/close accepted
+
+            }*/
+
+            // Hack end
+            return result;
+
         }
+
+        /**
+         * Async GET
+         * **/
+        public async Task<string> GetAsync(string uri)
+        {
+            System.Net.HttpWebRequest request = (HttpWebRequest)WebRequest.Create(URL);
+            request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+
+            using (HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync())
+            using (Stream stream = response.GetResponseStream())
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                return await reader.ReadToEndAsync();
+            }
+        }
+
+       
 
         #endregion
     }

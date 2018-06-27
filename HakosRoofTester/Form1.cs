@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ASCOM.DeviceInterface;
+using System;
 using System.Windows.Forms;
 
 namespace ASCOM.HakosRoof
@@ -60,7 +61,9 @@ namespace ASCOM.HakosRoof
                     Connected = true
                 };
 
-                driver.OpenShutter();
+
+                ShutterState state = driver.ShutterStatus;
+                driver.CloseShutter();
 
             }
             SetUIState();

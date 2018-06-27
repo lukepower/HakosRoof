@@ -40,10 +40,10 @@ namespace ASCOM.HakosRoof.Properties {
         [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string Username {
             get {
-                return ((string)(this["Username"]));
+                return ((string)(this["APIKey"]));
             }
             set {
-                this["Username"] = value;
+                this["APIKey"] = value;
             }
         }
         
