@@ -34,7 +34,7 @@ Name: "{cf}\ASCOM\Uninstall\Dome\HakosRoof"
 ; TODO: Add subfolders below {app} as needed (e.g. Name: "{app}\MyFolder")
 
 [Files]
-Source: "C:\Users\Lukas\source\repos\HakosRoof\HakosRoof\bin\Release\ASCOM.HakosRoof.Dome.dll"; DestDir: "{app}"
+;Source: "C:\Users\Lukas\source\repos\HakosRoof\HakosRoof\bin\Release\ASCOM.HakosRoof.Dome.dll"; DestDir: "{app}"
 Source: "C:\Users\Lukas\source\repos\HakosRoof\HakosRoof\bin\Release\*"; DestDir:"{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 ; TODO: Add other files needed by your driver here (add subfolders above)
@@ -71,25 +71,25 @@ var
    U : Variant;
    H : Variant;
 begin
-   Result := FALSE;  // Assume failure
+   Result := TRUE;  // Assume failure
    // check that the DriverHelper and Utilities objects exist, report errors if they don't
-   try
-      H := CreateOLEObject('DriverHelper.Util');
-   except
-      MsgBox('The ASCOM DriverHelper object has failed to load, this indicates a serious problem with the ASCOM installation', mbInformation, MB_OK);
-   end;
-   try
-      U := CreateOLEObject('ASCOM.Utilities.Util');
-   except
-      MsgBox('The ASCOM Utilities object has failed to load, this indicates that the ASCOM Platform has not been installed correctly', mbInformation, MB_OK);
-   end;
-   try
-      if (U.IsMinimumRequiredVersion(6,2)) then	// this will work in all locales
-         Result := TRUE;
-   except
-   end;
-   if(not Result) then
-      MsgBox('The ASCOM Platform 6.2 or greater is required for this driver.', mbInformation, MB_OK);
+   //try
+   //   H := CreateOLEObject('DriverHelper.Util');
+   //except
+   //   MsgBox('The ASCOM DriverHelper object has failed to load, this indicates a serious problem with the ASCOM installation', mbInformation, MB_OK);
+   //end;
+   //try
+    //  U := CreateOLEObject('ASCOM.Utilities.Util');
+   //except
+    //  MsgBox('The ASCOM Utilities object has failed to load, this indicates that the ASCOM Platform has not been installed correctly', mbInformation, MB_OK);
+   //end;
+   //try
+   ///   if (U.IsMinimumRequiredVersion(6,2)) then	// this will work in all locales
+   // /     Result := TRUE;
+   //except
+   //end;
+   //if(not Result) then
+    //  MsgBox('The ASCOM Platform 6.2 or greater is required for this driver.', mbInformation, MB_OK);
 end;
 
 // Code to enable the installer to uninstall previous versions of itself when a new version is installed

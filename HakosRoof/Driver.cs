@@ -352,7 +352,7 @@ namespace ASCOM.HakosRoof
         {
             get
             {
-                string name = "Short driver name - please customise";
+                string name = "Hakos Roof Dome";
                 tl.LogMessage("Name Get", name);
                 return name;
             }
