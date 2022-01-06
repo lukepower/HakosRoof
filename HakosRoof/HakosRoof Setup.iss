@@ -5,14 +5,14 @@
 [Setup]
 AppID={{5dd64651-0423-490e-92a5-ec2fd7f7451e}
 AppName=ASCOM HakosRoof Dome Driver
-AppVerName=ASCOM HakosRoof Dome Driver 1.0.0
-AppVersion=1.0.0
+AppVerName=ASCOM HakosRoof Dome Driver 1.0.1
+AppVersion=1.0.1
 AppPublisher=Lukas Demetz <lukas.demetz@gmail.com>
 AppPublisherURL=mailto:lukas.demetz@gmail.com
 AppSupportURL=http://tech.groups.yahoo.com/group/ASCOM-Talk/
 AppUpdatesURL=http://ascom-standards.org/
 VersionInfoVersion=1.0.0
-MinVersion=0,5.0.2195sp4
+MinVersion=0,6.0.2195sp4
 DefaultDirName="{cf}\ASCOM\Dome"
 DisableDirPage=yes
 DisableProgramGroupPage=yes
@@ -35,7 +35,7 @@ Name: "{cf}\ASCOM\Uninstall\Dome\HakosRoof"
 
 [Files]
 ;Source: "C:\Users\Lukas\source\repos\HakosRoof\HakosRoof\bin\Release\ASCOM.HakosRoof.Dome.dll"; DestDir: "{app}"
-Source: "C:\Users\Lukas\source\repos\HakosRoof\HakosRoof\bin\Release\*"; DestDir:"{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Users\interski\Source\Repos\HakosRoof\HakosRoof\bin\Release\*"; DestDir:"{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 ; TODO: Add other files needed by your driver here (add subfolders above)
 

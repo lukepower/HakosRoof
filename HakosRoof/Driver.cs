@@ -30,7 +30,7 @@
 using System;
 using System.Runtime.InteropServices;
 using ASCOM.Astrometry.AstroUtils;
-using SimpleJson;
+//using SimpleJson;
 using ASCOM.Utilities;
 using ASCOM.DeviceInterface;
 using System.Globalization;
@@ -119,7 +119,8 @@ namespace ASCOM.HakosRoof
         {
             openRoof,
             closeRoof,
-            roofStatus
+            roofStatus,
+            stopRoof
         }
 
         public enum ReturnCodes
@@ -371,7 +372,16 @@ namespace ASCOM.HakosRoof
 
         public void AbortSlew()
         {
-            // This is a mandatory parameter but we have no action to take in this simple driver
+            //domeShutterState = ShutterState.shutt; // Pr‰‰emptively set to expected value
+
+            CallResult result = SendRequest(ActionCodes.stopRoof);
+            if (result.returnCode == ReturnCodes.roofError || result.returnCode == ReturnCodes.commandError)
+            {
+                domeShutterState = ShutterState.shutterError;
+                tl.LogMessage("CloseShutter", "Shutter error while asking to close");
+            }
+
+            tl.LogMessage("CloseShutter", "Shutter has been asked to close");
             tl.LogMessage("AbortSlew", "Completed");
         }
 
@@ -485,6 +495,8 @@ namespace ASCOM.HakosRoof
 
         public void CloseShutter()
         {
+            domeShutterState = ShutterState.shutterClosing; // Pr‰‰emptively set to expected value
+            tl.LogMessage("CloseShutter", "Request to close Shutter");
             CallResult result = SendRequest(ActionCodes.closeRoof);
             if (result.returnCode == ReturnCodes.roofError || result.returnCode == ReturnCodes.commandError)
             {
@@ -504,7 +516,7 @@ namespace ASCOM.HakosRoof
 
         public void OpenShutter()
         {
-
+            domeShutterState = ShutterState.shutterOpening; // Pr‰‰emptively set to expected value
             CallResult result = SendRequest(ActionCodes.openRoof);
             if (result.returnCode == ReturnCodes.roofError || result.returnCode == ReturnCodes.commandError)
             {
@@ -585,8 +597,15 @@ namespace ASCOM.HakosRoof
         {
             get
             {
-                tl.LogMessage("Slewing Get", false.ToString());
-                return false;
+                switch (domeShutterState)
+                {
+                    case ShutterState.shutterClosed: return false;
+                    case ShutterState.shutterOpen: return false;
+                    case ShutterState.shutterClosing: return true;
+                    case ShutterState.shutterOpening: return true;
+                    default: return false;
+                }
+
             }
         }
 
@@ -798,6 +817,7 @@ namespace ASCOM.HakosRoof
                 case ActionCodes.closeRoof: requestLocal = new RestRequest("remobs?action=close", Method.GET); break;
                 case ActionCodes.openRoof: requestLocal = new RestRequest("remobs?action=open", Method.GET); break;
                 case ActionCodes.roofStatus: requestLocal = new RestRequest("remobs?action=status", Method.GET); break;
+                case ActionCodes.stopRoof: requestLocal = new RestRequest("remobs?action=stop", Method.GET); break;
                 default: result.returnCode = ReturnCodes.commandError; result.resultString = "No action given"; return result;
             }
 
@@ -825,7 +845,7 @@ namespace ASCOM.HakosRoof
                     case "open": result.returnCode = ReturnCodes.roofOpen; break;
                     case "opening": result.returnCode = ReturnCodes.roofOpening; break;
                     case "closed": result.returnCode = ReturnCodes.roofClosed; break;
-                    case "closeing": result.returnCode = ReturnCodes.roofClosing; break;
+                    case "closing": result.returnCode = ReturnCodes.roofClosing; break;
                 }
 
             /*} else if (JSONObj.val=="true")
