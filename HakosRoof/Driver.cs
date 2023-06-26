@@ -271,7 +271,7 @@ namespace ASCOM.HakosRoof
         {
             get
             {
-                LogMessage("Connected", "Get {0}", IsConnected);
+                tl.LogMessage("Connected", "Get {0}", IsConnected);
                 return IsConnected;
             }
             set
@@ -283,7 +283,7 @@ namespace ASCOM.HakosRoof
                 if (value)
                 {
                     connectedState = true;
-                    LogMessage("Connected Set", "Connecting to URL {0}", URL);
+                    tl.LogMessage("Connected Set", "Connecting to URL {0}", URL);
                     // TODO connect to the device
                     client = new RestClient(URL);
                     // client.Authenticator = new HttpBasicAuthenticator(username, password);
@@ -291,7 +291,7 @@ namespace ASCOM.HakosRoof
                     
                     if (res.returnCode== ReturnCodes.credentialError)
                     {
-                        LogMessage("Connected Set", "Connecting to URL {0} failed with API error", URL);
+                        tl.LogMessage("Connected Set", "Connecting to URL {0} failed with API error", URL);
                         connectedState = false;
                     }
 
@@ -301,7 +301,7 @@ namespace ASCOM.HakosRoof
                 else
                 {
                     connectedState = false;
-                    LogMessage("Connected Set", "Disconnecting from Server {0}", URL);
+                    tl.LogMessage("Connected Set", "Disconnecting from Server {0}", URL);
                     // TODO disconnect from the device
                 }
                 log.Info("Hello logging world!");
@@ -771,11 +771,18 @@ namespace ASCOM.HakosRoof
 
         public CallResult SendRequest(ActionCodes action)
         {
+            
 
             CallResult result = new CallResult
             {
                 calledAction = action
             };
+            if (this.Connected == false)
+            {
+                result.returnCode = ReturnCodes.commandError;
+                LogMessage("SendRequest", "Trying to send request while not connected");
+                return result;
+            }
             /*
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(URL);
             request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
