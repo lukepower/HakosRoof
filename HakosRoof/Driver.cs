@@ -780,7 +780,7 @@ namespace ASCOM.HakosRoof
             if (this.Connected == false)
             {
                 result.returnCode = ReturnCodes.commandError;
-                LogMessage("SendRequest", "Trying to send request while not connected");
+                tl.LogMessage("SendRequest", "Trying to send request while not connected");
                 return result;
             }
             /*
@@ -866,7 +866,7 @@ namespace ASCOM.HakosRoof
                 }
 
             // Time crosscheck
-            if (action == ActionCodes.roofStatus && lastRequestedCommand != ActionCodes.roofStatus)
+            if (action == ActionCodes.roofStatus && (lastRequestedCommand == ActionCodes.openRoof || lastRequestedCommand == ActionCodes.closeRoof)
             {
                 long elapsedTicks = DateTime.UtcNow.Ticks - lastRequestedCommandTimestamp.Ticks;
                 TimeSpan elapsedSpan = new TimeSpan(elapsedTicks);
