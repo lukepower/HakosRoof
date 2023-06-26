@@ -5,8 +5,8 @@
 [Setup]
 AppID={{5dd64651-0423-490e-92a5-ec2fd7f7451e}
 AppName=ASCOM HakosRoof Dome Driver
-AppVerName=ASCOM HakosRoof Dome Driver 1.0.1
-AppVersion=1.0.1
+AppVerName=ASCOM HakosRoof Dome Driver 1.0.2
+AppVersion=1.0.2
 AppPublisher=Lukas Demetz <lukas.demetz@gmail.com>
 AppPublisherURL=mailto:lukas.demetz@gmail.com
 AppSupportURL=http://tech.groups.yahoo.com/group/ASCOM-Talk/

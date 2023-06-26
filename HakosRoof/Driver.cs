@@ -110,6 +110,11 @@ namespace ASCOM.HakosRoof
 
         private RestClient client;
 
+        // Save last command type and time to crosscheck for errors
+        private ActionCodes lastRequestedCommand;
+
+        private DateTime lastRequestedCommandTimestamp;
+
         /// <summary>
         /// Variable to hold the trace logger object (creates a diagnostic log file with information that you specify)
         /// </summary>
@@ -378,7 +383,7 @@ namespace ASCOM.HakosRoof
             if (result.returnCode == ReturnCodes.roofError || result.returnCode == ReturnCodes.commandError)
             {
                 domeShutterState = ShutterState.shutterError;
-                tl.LogMessage("CloseShutter", "Shutter error while asking to close");
+                tl.LogMessage("CloseShutter", "Shutter error while asking to stop");
             }
 
             tl.LogMessage("CloseShutter", "Shutter has been asked to close");
@@ -835,9 +840,14 @@ namespace ASCOM.HakosRoof
                 result.returnCode = ReturnCodes.credentialError;
                 return result;
             }
-            //JSONObj.msg == "invalid key"
-            //if (JSONObj.ack)
-            //{
+            if (action == ActionCodes.closeRoof || action == ActionCodes.openRoof)
+            {
+                // Save last command and timestamp here
+                lastRequestedCommand = action;
+                lastRequestedCommandTimestamp = DateTime.UtcNow;
+            }
+            
+            
                 switch (JSONObj.stext)
                 {
                     case "Ok": result.returnCode = ReturnCodes.commandAccepted; break;
@@ -848,11 +858,57 @@ namespace ASCOM.HakosRoof
                     case "closing": result.returnCode = ReturnCodes.roofClosing; break;
                 }
 
-            /*} else if (JSONObj.val=="true")
-                {
-                // Command to open/close accepted
+            // Time crosscheck
+            if (action == ActionCodes.roofStatus && lastRequestedCommand != ActionCodes.roofStatus)
+            {
+                long elapsedTicks = DateTime.UtcNow.Ticks - lastRequestedCommandTimestamp.Ticks;
+                TimeSpan elapsedSpan = new TimeSpan(elapsedTicks);
 
-            }*/
+                if (elapsedSpan.TotalSeconds > 10)
+                {
+                    // Ok, check if there is a corresponding status change:
+                    switch (lastRequestedCommand)
+                    {
+                        case ActionCodes.openRoof:
+                            // Expect opening or open, if still closed throw an error
+                            if (result.returnCode == ReturnCodes.roofOpening)
+                            {
+                                // ok
+                                break;
+                            }
+                            if (result.returnCode == ReturnCodes.roofOpen)
+                            {
+                                // All good
+                                lastRequestedCommand = ActionCodes.roofStatus;
+                                break;
+                            }
+                            // Ok, if we are here its an error
+                            result.returnCode = ReturnCodes.roofError;
+
+                            break;
+                        case ActionCodes.closeRoof:
+                            // Expect opening or open, if still closed throw an error
+                            if (result.returnCode == ReturnCodes.roofClosing)
+                            {
+                                // ok
+                                break;
+                            }
+                            if (result.returnCode == ReturnCodes.roofClosed)
+                            {
+                                // All good
+                                lastRequestedCommand = ActionCodes.roofStatus;
+                                break;
+                            }
+                            // Ok, if we are here its an error
+                            result.returnCode = ReturnCodes.roofError;
+
+                            break;
+
+                    }
+
+                }
+            }
+
 
             // Hack end
             return result;
