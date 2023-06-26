@@ -287,6 +287,7 @@ namespace ASCOM.HakosRoof
                     // TODO connect to the device
                     client = new RestClient(URL);
                     // client.Authenticator = new HttpBasicAuthenticator(username, password);
+                    lastRequestedCommand = ActionCodes.roofStatus;
                     CallResult res =  SendRequest(ActionCodes.roofStatus);
                     
                     if (res.returnCode== ReturnCodes.credentialError)
@@ -327,7 +328,7 @@ namespace ASCOM.HakosRoof
             {
                 Version version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
                 // TODO customise this driver description
-                string driverInfo = "Information about the driver itself. Version: " + String.Format(CultureInfo.InvariantCulture, "{0}.{1}", version.Major, version.Minor);
+                string driverInfo = "ASCOM Roof driver. Version: " + String.Format(CultureInfo.InvariantCulture, "{0}.{1}", version.Major, version.Minor);
                 tl.LogMessage("DriverInfo Get", driverInfo);
                 return driverInfo;
             }
@@ -777,12 +778,12 @@ namespace ASCOM.HakosRoof
             {
                 calledAction = action
             };
-            if (this.Connected == false)
+            /*if (this.Connected == false)
             {
                 result.returnCode = ReturnCodes.commandError;
                 tl.LogMessage("SendRequest", "Trying to send request while not connected");
                 return result;
-            }
+            }*/
             /*
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(URL);
             request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
@@ -866,7 +867,7 @@ namespace ASCOM.HakosRoof
                 }
 
             // Time crosscheck
-            if (action == ActionCodes.roofStatus && (lastRequestedCommand == ActionCodes.openRoof || lastRequestedCommand == ActionCodes.closeRoof)
+            if (action == ActionCodes.roofStatus && (lastRequestedCommand == ActionCodes.openRoof || lastRequestedCommand == ActionCodes.closeRoof))
             {
                 long elapsedTicks = DateTime.UtcNow.Ticks - lastRequestedCommandTimestamp.Ticks;
                 TimeSpan elapsedSpan = new TimeSpan(elapsedTicks);
@@ -889,6 +890,7 @@ namespace ASCOM.HakosRoof
                                 lastRequestedCommand = ActionCodes.roofStatus;
                                 break;
                             }
+
                             // Ok, if we are here its an error
                             result.returnCode = ReturnCodes.roofError;
 
@@ -900,7 +902,7 @@ namespace ASCOM.HakosRoof
                                 // ok
                                 break;
                             }
-                            if (result.returnCode == ReturnCodes.roofClosed)
+                            if (result.returnCode == ReturnCodes.roofClosed || result.returnCode == ReturnCodes.roofOpen)
                             {
                                 // All good
                                 lastRequestedCommand = ActionCodes.roofStatus;
