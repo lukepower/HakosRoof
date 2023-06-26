@@ -283,7 +283,7 @@ namespace ASCOM.HakosRoof
                 if (value)
                 {
                     connectedState = true;
-                    tl.LogMessage("Connected Set", "Connecting to URL {0}", URL);
+                    tl.LogMessage("Connected Set", "Connecting to URL " +  URL);
                     // TODO connect to the device
                     client = new RestClient(URL);
                     // client.Authenticator = new HttpBasicAuthenticator(username, password);
@@ -291,7 +291,7 @@ namespace ASCOM.HakosRoof
                     
                     if (res.returnCode== ReturnCodes.credentialError)
                     {
-                        tl.LogMessage("Connected Set", "Connecting to URL {0} failed with API error", URL);
+                        tl.LogMessage("Connected Set", "Connecting to URL {0} failed with API error " + URL);
                         connectedState = false;
                     }
 
@@ -301,7 +301,7 @@ namespace ASCOM.HakosRoof
                 else
                 {
                     connectedState = false;
-                    tl.LogMessage("Connected Set", "Disconnecting from Server {0}", URL);
+                    tl.LogMessage("Connected Set", "Disconnecting from Server {0}" + URL);
                     // TODO disconnect from the device
                 }
                 log.Info("Hello logging world!");
