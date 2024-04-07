@@ -834,6 +834,7 @@ namespace ASCOM.HakosRoof
             }
 
             requestLocal.AddParameter("key", APIKey); // Setze API key
+            requestLocal.OnBeforeDeserialization = resp => { resp.ContentType = "application/json"; };
 
 
             // execute the request
