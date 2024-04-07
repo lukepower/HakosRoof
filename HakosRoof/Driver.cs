@@ -42,7 +42,6 @@ using System.Web;
 using System.Diagnostics;
 using System.Text;
 using RestSharp;
-using Newtonsoft.Json;
 
 namespace ASCOM.HakosRoof
 {
@@ -839,9 +838,9 @@ namespace ASCOM.HakosRoof
 
             // execute the request
             //IRestResponse<RestCallResult> response = client.Execute<RestCallResult>(requestLocal);
-            IRestResponse response = client.Execute(requestLocal);
+            var response = client.Execute<RestCallResult>(requestLocal);
             // var content = response.Content; // raw content as string
-            var JSONObj = JsonConvert.DeserializeObject<RestCallResult>(response.Content);
+            var JSONObj = response.Data;
 
             if  (JSONObj.msg=="invalid key")
             {
